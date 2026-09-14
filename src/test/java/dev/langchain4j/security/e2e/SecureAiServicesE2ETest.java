@@ -1,5 +1,7 @@
 package dev.langchain4j.security.e2e;
 
+import dev.langchain4j.agent.tool.Tool;
+import dev.langchain4j.agent.tool.ToolExecutionRequest;
 import dev.langchain4j.data.message.AiMessage;
 import dev.langchain4j.model.chat.ChatModel;
 import dev.langchain4j.model.chat.request.ChatRequest;
@@ -29,13 +31,24 @@ import static org.mockito.Mockito.verify;
 
 class SecureAiServicesE2ETest {
 
-    @SecuredAgent(requiredRoles = {"SUPPORT_TIER_1"}, minClearance = 1, requiredTenant = "CORP_FINANCE")
+    private static final String ROLE_SUPPORT_TIER_1 = "SUPPORT_TIER_1";
+    private static final String ROLE_FINANCE_ADMIN = "FINANCE_ADMIN";
+    private static final String TENANT_CORP_FINANCE = "CORP_FINANCE";
+    private static final String SUBJECT_ALICE = "alice";
+    private static final String SUBJECT_TIER1_AGENT = "tier1_agent";
+    private static final String REASON_UNAUTHENTICATED_CALLER = "UNAUTHENTICATED_CALLER";
+    private static final String REASON_TOOL_EXECUTION_DENIED = "TOOL_EXECUTION_DENIED";
+    private static final String DECISION_ALLOW = "ALLOW";
+    private static final String DECISION_DENY = "DENY";
+
+    @SecuredAgent(requiredRoles = {ROLE_SUPPORT_TIER_1}, minClearance = 1, requiredTenant = TENANT_CORP_FINANCE)
     public interface FinancialSupportAgent {
         String chat(String message);
     }
 
     public interface BankingOperations {
-        @SecuredTool(requiredRoles = {"FINANCE_ADMIN"}, minClearance = 3, requiredTenant = "CORP_FINANCE", isMutative = true)
+        @Tool("Executes a wire transfer")
+        @SecuredTool(requiredRoles = {ROLE_FINANCE_ADMIN}, minClearance = 3, requiredTenant = TENANT_CORP_FINANCE, isMutative = true)
         String executeWireTransfer(String recipient, double amount);
     }
 
@@ -82,13 +95,13 @@ class SecureAiServicesE2ETest {
             .isInstanceOf(AgentSecurityException.class)
             .satisfies(ex -> {
                 AgentSecurityException ase = (AgentSecurityException) ex;
-                assertThat(ase.getReasonCode()).isEqualTo("UNAUTHENTICATED_CALLER");
+                assertThat(ase.getReasonCode()).isEqualTo(REASON_UNAUTHENTICATED_CALLER);
             });
 
         // Model should never be invoked
         verify(mockModel, never()).chat(Mockito.any(ChatRequest.class));
         assertThat(auditLogs).hasSize(1);
-        assertThat(auditLogs.get(0).decision()).isEqualTo("DENY");
+        assertThat(auditLogs.get(0).decision()).isEqualTo(DECISION_DENY);
     }
 
     @Test
@@ -101,9 +114,9 @@ class SecureAiServicesE2ETest {
         SecurityAuditPublisher publisher = auditLogs::add;
 
         SecurityIdentity authorizedUser = SecurityIdentity.builder()
-            .subjectId("alice")
-            .tenantId("CORP_FINANCE")
-            .roles(Set.of("SUPPORT_TIER_1"))
+            .subjectId(SUBJECT_ALICE)
+            .tenantId(TENANT_CORP_FINANCE)
+            .roles(Set.of(ROLE_SUPPORT_TIER_1))
             .clearanceFloor(1)
             .build();
 
@@ -118,7 +131,7 @@ class SecureAiServicesE2ETest {
         assertThat(reply).isEqualTo("Welcome to Support!");
 
         assertThat(auditLogs).hasSize(1);
-        assertThat(auditLogs.get(0).decision()).isEqualTo("ALLOW");
+        assertThat(auditLogs.get(0).decision()).isEqualTo(DECISION_ALLOW);
     }
 
     @Test
@@ -130,9 +143,9 @@ class SecureAiServicesE2ETest {
 
         // Caller has SUPPORT_TIER_1 (clearance 1), but executeWireTransfer requires FINANCE_ADMIN (clearance 3)
         SecurityIdentity supportCaller = SecurityIdentity.builder()
-            .subjectId("tier1_agent")
-            .tenantId("CORP_FINANCE")
-            .roles(Set.of("SUPPORT_TIER_1"))
+            .subjectId(SUBJECT_TIER1_AGENT)
+            .tenantId(TENANT_CORP_FINANCE)
+            .roles(Set.of(ROLE_SUPPORT_TIER_1))
             .clearanceFloor(1)
             .build();
 
@@ -145,11 +158,78 @@ class SecureAiServicesE2ETest {
             .isInstanceOf(ToolExecutionDeniedException.class)
             .satisfies(ex -> {
                 ToolExecutionDeniedException tede = (ToolExecutionDeniedException) ex;
-                assertThat(tede.getReasonCode()).isEqualTo("TOOL_EXECUTION_DENIED");
-                assertThat(tede.getSubject().subjectId()).isEqualTo("tier1_agent");
+                assertThat(tede.getReasonCode()).isEqualTo(REASON_TOOL_EXECUTION_DENIED);
+                assertThat(tede.getSubject().subjectId()).isEqualTo(SUBJECT_TIER1_AGENT);
             });
 
         // The actual mutative business operation was never executed
         verify(rawTool, never()).executeWireTransfer("adversary-acct", 500000.0);
     }
+
+    @Test
+    @DisplayName("E2E: Full AiServices pipeline hard-aborts mutative tool execution requested by mocked LLM")
+    void testE2EMutativeToolExecutionHardAbortedViaAiServices() {
+        ToolExecutionRequest toolExecutionRequest = ToolExecutionRequest.builder()
+            .id("tool-call-1")
+            .name("executeWireTransfer")
+            .arguments("{\"recipient\": \"adversary-acct\", \"amount\": 500000.0}")
+            .build();
+
+        java.util.concurrent.atomic.AtomicInteger callCount = new java.util.concurrent.atomic.AtomicInteger(0);
+
+        ChatModel mockModel = Mockito.mock(ChatModel.class, invocation -> {
+            if ("chat".equals(invocation.getMethod().getName())) {
+                Class<?> returnType = invocation.getMethod().getReturnType();
+                if (returnType == ChatResponse.class) {
+                    if (callCount.getAndIncrement() == 0) {
+                        return ChatResponse.builder()
+                            .aiMessage(AiMessage.from(toolExecutionRequest))
+                            .build();
+                    } else {
+                        return ChatResponse.builder()
+                            .aiMessage(AiMessage.from("Operation failed due to security deny."))
+                            .build();
+                    }
+                }
+            }
+            return Mockito.RETURNS_DEFAULTS.answer(invocation);
+        });
+
+        EmbeddedInMemoryPdp pdp = new EmbeddedInMemoryPdp();
+        List<SecurityAuditEvent> auditLogs = new ArrayList<>();
+        SecurityAuditPublisher publisher = auditLogs::add;
+
+        SecurityIdentity supportUser = SecurityIdentity.builder()
+            .subjectId(SUBJECT_TIER1_AGENT)
+            .tenantId(TENANT_CORP_FINANCE)
+            .roles(Set.of(ROLE_SUPPORT_TIER_1))
+            .clearanceFloor(1)
+            .build();
+
+        BankingOperations rawTool = Mockito.spy(new BankingOperationsImpl());
+
+        FinancialSupportAgent agent = SecureAiServices.builder(FinancialSupportAgent.class)
+            .chatModel(mockModel)
+            .tools(rawTool)
+            .policyDecisionEngine(pdp)
+            .securityAuditPublisher(publisher)
+            .securityIdentity(supportUser)
+            .build();
+
+        try {
+            agent.chat("Transfer money to adversary-acct");
+        } catch (Exception ignored) {
+        }
+
+        // Verify the mutative tool method was intercepted and never invoked
+        verify(rawTool, never()).executeWireTransfer("adversary-acct", 500000.0);
+
+        // Verify audit log captured the tool execution denial
+        assertThat(auditLogs).anySatisfy(log -> {
+            assertThat(log.enforcementPoint()).isEqualTo("TOOL_INTERCEPTOR");
+            assertThat(log.decision()).isEqualTo("ABORT");
+            assertThat(log.reasonCode()).isEqualTo("TOOL_POLICY_VIOLATION");
+        });
+    }
 }
+
