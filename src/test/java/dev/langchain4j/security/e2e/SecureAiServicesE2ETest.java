@@ -231,5 +231,50 @@ class SecureAiServicesE2ETest {
             assertThat(log.reasonCode()).isEqualTo("TOOL_POLICY_VIOLATION");
         });
     }
+
+    @Test
+    @DisplayName("E2E: Verifies passthrough builder methods and withUnderlyingBuilder escape hatch")
+    void testBuilderPassthroughMethodsAndUnderlyingCustomizer() {
+        ChatModel mockModel = createMockChatModel("Passthrough OK");
+        EmbeddedInMemoryPdp pdp = new EmbeddedInMemoryPdp();
+        List<SecurityAuditEvent> auditLogs = new ArrayList<>();
+        SecurityAuditPublisher publisher = auditLogs::add;
+
+        SecurityIdentity authorizedUser = SecurityIdentity.builder()
+            .subjectId(SUBJECT_ALICE)
+            .tenantId(TENANT_CORP_FINANCE)
+            .roles(Set.of(ROLE_SUPPORT_TIER_1))
+            .clearanceFloor(1)
+            .build();
+
+        dev.langchain4j.memory.ChatMemory chatMemory = dev.langchain4j.memory.chat.MessageWindowChatMemory.withMaxMessages(10);
+        dev.langchain4j.model.moderation.ModerationModel mockModerationModel = Mockito.mock(dev.langchain4j.model.moderation.ModerationModel.class);
+        dev.langchain4j.model.chat.StreamingChatModel mockStreamingModel = Mockito.mock(dev.langchain4j.model.chat.StreamingChatModel.class);
+        dev.langchain4j.service.tool.ToolProvider mockToolProvider = Mockito.mock(dev.langchain4j.service.tool.ToolProvider.class);
+
+        java.util.concurrent.atomic.AtomicBoolean customizerInvoked = new java.util.concurrent.atomic.AtomicBoolean(false);
+
+        FinancialSupportAgent agent = SecureAiServices.builder(FinancialSupportAgent.class)
+            .chatModel(mockModel)
+            .streamingChatModel(mockStreamingModel)
+            .streamingChatLanguageModel(mockStreamingModel)
+            .chatMemory(chatMemory)
+            .chatMemoryProvider(memoryId -> chatMemory)
+            .moderationModel(mockModerationModel)
+            .systemMessageProvider(memoryId -> "System prompt")
+            .toolProvider(mockToolProvider)
+            .policyDecisionEngine(pdp)
+            .securityAuditPublisher(publisher)
+            .securityIdentity(authorizedUser)
+            .withUnderlyingBuilder(builder -> customizerInvoked.set(true))
+            .build();
+
+        assertThat(agent).isNotNull();
+        assertThat(customizerInvoked.get()).isTrue();
+
+        String response = agent.chat("Test passthrough");
+        assertThat(response).isEqualTo("Passthrough OK");
+    }
 }
+
 

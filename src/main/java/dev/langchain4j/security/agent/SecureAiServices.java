@@ -1,6 +1,10 @@
 package dev.langchain4j.security.agent;
 
+import dev.langchain4j.memory.ChatMemory;
+import dev.langchain4j.memory.chat.ChatMemoryProvider;
 import dev.langchain4j.model.chat.ChatModel;
+import dev.langchain4j.model.chat.StreamingChatModel;
+import dev.langchain4j.model.moderation.ModerationModel;
 import dev.langchain4j.rag.content.retriever.ContentRetriever;
 import dev.langchain4j.security.audit.SecurityAuditPublisher;
 import dev.langchain4j.security.context.IdentityBridge;
@@ -8,17 +12,22 @@ import dev.langchain4j.security.context.SecurityIdentity;
 import dev.langchain4j.security.pdp.PolicyDecisionEngine;
 import dev.langchain4j.security.tool.HardAbortToolExecutionInterceptor;
 import dev.langchain4j.service.AiServices;
+import dev.langchain4j.service.tool.ToolProvider;
 
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
- * Decorator builder wrapping LangChain4j 1.19.0 {@link AiServices} to generate secured dynamic proxies.
+ * Decorator builder wrapping LangChain4j {@link AiServices} to generate secured dynamic proxies.
  */
 public class SecureAiServices<T> {
+
+    private static final String ERROR_PDP_REQUIRED = "PolicyDecisionEngine must be configured in SecureAiServices";
 
     private final Class<T> aiServiceClass;
     private final AiServices<T> underlyingBuilder;
@@ -66,8 +75,37 @@ public class SecureAiServices<T> {
         return chatModel(chatModel);
     }
 
+    public SecureAiServices<T> streamingChatModel(StreamingChatModel streamingChatModel) {
+        underlyingBuilder.streamingChatModel(streamingChatModel);
+        return this;
+    }
+
+    public SecureAiServices<T> streamingChatLanguageModel(StreamingChatModel streamingChatModel) {
+        return streamingChatModel(streamingChatModel);
+    }
+
+    public SecureAiServices<T> chatMemory(ChatMemory chatMemory) {
+        underlyingBuilder.chatMemory(chatMemory);
+        return this;
+    }
+
+    public SecureAiServices<T> chatMemoryProvider(ChatMemoryProvider chatMemoryProvider) {
+        underlyingBuilder.chatMemoryProvider(chatMemoryProvider);
+        return this;
+    }
+
     public SecureAiServices<T> contentRetriever(ContentRetriever contentRetriever) {
         underlyingBuilder.contentRetriever(contentRetriever);
+        return this;
+    }
+
+    public SecureAiServices<T> moderationModel(ModerationModel moderationModel) {
+        underlyingBuilder.moderationModel(moderationModel);
+        return this;
+    }
+
+    public SecureAiServices<T> systemMessageProvider(Function<Object, String> systemMessageProvider) {
+        underlyingBuilder.systemMessageProvider(systemMessageProvider);
         return this;
     }
 
@@ -85,9 +123,21 @@ public class SecureAiServices<T> {
         return this;
     }
 
+    public SecureAiServices<T> toolProvider(ToolProvider toolProvider) {
+        underlyingBuilder.toolProvider(toolProvider);
+        return this;
+    }
+
+    public SecureAiServices<T> withUnderlyingBuilder(Consumer<AiServices<T>> customizer) {
+        if (customizer != null) {
+            customizer.accept(underlyingBuilder);
+        }
+        return this;
+    }
+
     @SuppressWarnings("unchecked")
     public T build() {
-        Objects.requireNonNull(pdp, "PolicyDecisionEngine must be configured in SecureAiServices");
+        Objects.requireNonNull(pdp, ERROR_PDP_REQUIRED);
 
         // Wrap registered tools with HardAbortToolExecutionInterceptor PEP
         if (!securedTools.isEmpty()) {
@@ -117,3 +167,4 @@ public class SecureAiServices<T> {
         );
     }
 }
+

@@ -20,7 +20,7 @@ import java.util.function.Supplier;
 import static dev.langchain4j.security.retrieval.SecurityMetadataNamespaces.*;
 
 /**
- * Decorates a LangChain4j 1.19.0 {@link ContentRetriever} with dynamic AST pre-filtering
+ * Decorates a LangChain4j  {@link ContentRetriever} with dynamic AST pre-filtering
  * and mandatory post-retrieval in-memory chunk pruning.
  */
 public class SecureContentRetriever implements ContentRetriever {

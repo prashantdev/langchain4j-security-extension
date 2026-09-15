@@ -12,7 +12,7 @@ import java.util.Collection;
 import static dev.langchain4j.security.retrieval.SecurityMetadataNamespaces.*;
 
 /**
- * Translates caller {@link SecurityIdentity} into native LangChain4j 1.19.0 {@link Filter} AST trees.
+ * Translates caller {@link SecurityIdentity} into native LangChain4j  {@link Filter} AST trees.
  */
 public final class SecurityFilterAstBuilder {
 
