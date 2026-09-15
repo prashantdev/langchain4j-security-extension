@@ -66,6 +66,11 @@ public class SecureContentRetriever implements ContentRetriever {
         return SecurityFilterAstBuilder.buildFilter(identity);
     }
 
+    /**
+     * Executes retrieval using the underlying delegate content retriever, applying dynamic security pre-filtering
+     * and post-retrieval chunk authorization pruning.
+     * Note: Refer to underlying method in langchain4j library for details on what it does.
+     */
     @Override
     public List<Content> retrieve(Query query) {
         SecurityIdentity identity = resolveIdentity(query);

@@ -24,7 +24,7 @@ public class Slf4jJsonAuditPublisher implements SecurityAuditPublisher {
         this.mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
     }
 
-    public ObjectMapper getObjectMapper() {
+    private ObjectMapper getObjectMapper() {
         return mapper;
     }
 

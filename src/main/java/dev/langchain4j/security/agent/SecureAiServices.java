@@ -66,49 +66,89 @@ public class SecureAiServices<T> {
         return this;
     }
 
+    /**
+     * Delegates chat model configuration to the underlying LangChain4j {@link AiServices} builder.
+     * Note: Refer to underlying method in langchain4j library for details on what it does.
+     */
     public SecureAiServices<T> chatModel(ChatModel chatModel) {
         underlyingBuilder.chatModel(chatModel);
         return this;
     }
 
+    /**
+     * Alias for {@link #chatModel(ChatModel)}. Delegates to the underlying LangChain4j {@link AiServices} builder.
+     * Note: Refer to underlying method in langchain4j library for details on what it does.
+     */
     public SecureAiServices<T> chatLanguageModel(ChatModel chatModel) {
         return chatModel(chatModel);
     }
 
+    /**
+     * Delegates streaming chat model configuration to the underlying LangChain4j {@link AiServices} builder.
+     * Note: Refer to underlying method in langchain4j library for details on what it does.
+     */
     public SecureAiServices<T> streamingChatModel(StreamingChatModel streamingChatModel) {
         underlyingBuilder.streamingChatModel(streamingChatModel);
         return this;
     }
 
+    /**
+     * Alias for {@link #streamingChatModel(StreamingChatModel)}. Delegates to the underlying LangChain4j {@link AiServices} builder.
+     * Note: Refer to underlying method in langchain4j library for details on what it does.
+     */
     public SecureAiServices<T> streamingChatLanguageModel(StreamingChatModel streamingChatModel) {
         return streamingChatModel(streamingChatModel);
     }
 
+    /**
+     * Delegates chat memory configuration to the underlying LangChain4j {@link AiServices} builder.
+     * Note: Refer to underlying method in langchain4j library for details on what it does.
+     */
     public SecureAiServices<T> chatMemory(ChatMemory chatMemory) {
         underlyingBuilder.chatMemory(chatMemory);
         return this;
     }
 
+    /**
+     * Delegates chat memory provider configuration to the underlying LangChain4j {@link AiServices} builder.
+     * Note: Refer to underlying method in langchain4j library for details on what it does.
+     */
     public SecureAiServices<T> chatMemoryProvider(ChatMemoryProvider chatMemoryProvider) {
         underlyingBuilder.chatMemoryProvider(chatMemoryProvider);
         return this;
     }
 
+    /**
+     * Delegates content retriever configuration to the underlying LangChain4j {@link AiServices} builder.
+     * Note: Refer to underlying method in langchain4j library for details on what it does.
+     */
     public SecureAiServices<T> contentRetriever(ContentRetriever contentRetriever) {
         underlyingBuilder.contentRetriever(contentRetriever);
         return this;
     }
 
+    /**
+     * Delegates moderation model configuration to the underlying LangChain4j {@link AiServices} builder.
+     * Note: Refer to underlying method in langchain4j library for details on what it does.
+     */
     public SecureAiServices<T> moderationModel(ModerationModel moderationModel) {
         underlyingBuilder.moderationModel(moderationModel);
         return this;
     }
 
+    /**
+     * Delegates system message provider configuration to the underlying LangChain4j {@link AiServices} builder.
+     * Note: Refer to underlying method in langchain4j library for details on what it does.
+     */
     public SecureAiServices<T> systemMessageProvider(Function<Object, String> systemMessageProvider) {
         underlyingBuilder.systemMessageProvider(systemMessageProvider);
         return this;
     }
 
+    /**
+     * Registers tool instances to be intercepted and secured by {@link HardAbortToolExecutionInterceptor} before being passed to the underlying LangChain4j {@link AiServices} builder.
+     * Note: Refer to underlying method in langchain4j library for details on what it does.
+     */
     public SecureAiServices<T> tools(Object... tools) {
         if (tools != null) {
             Collections.addAll(this.securedTools, tools);
@@ -116,6 +156,10 @@ public class SecureAiServices<T> {
         return this;
     }
 
+    /**
+     * Registers a list of tool instances to be intercepted and secured by {@link HardAbortToolExecutionInterceptor} before being passed to the underlying LangChain4j {@link AiServices} builder.
+     * Note: Refer to underlying method in langchain4j library for details on what it does.
+     */
     public SecureAiServices<T> tools(List<Object> tools) {
         if (tools != null) {
             this.securedTools.addAll(tools);
@@ -123,11 +167,19 @@ public class SecureAiServices<T> {
         return this;
     }
 
+    /**
+     * Delegates tool provider configuration to the underlying LangChain4j {@link AiServices} builder.
+     * Note: Refer to underlying method in langchain4j library for details on what it does.
+     */
     public SecureAiServices<T> toolProvider(ToolProvider toolProvider) {
         underlyingBuilder.toolProvider(toolProvider);
         return this;
     }
 
+    /**
+     * Allows custom configuration directly on the underlying LangChain4j {@link AiServices} builder instance.
+     * Note: Refer to underlying method in langchain4j library for details on what it does.
+     */
     public SecureAiServices<T> withUnderlyingBuilder(Consumer<AiServices<T>> customizer) {
         if (customizer != null) {
             customizer.accept(underlyingBuilder);

@@ -57,19 +57,31 @@ public final class SecurityFilterAstBuilder {
         return and(existingFilter, securityFilter);
     }
 
+    /**
+     * Constructs an {@link IsEqualTo} filter for the specified metadata key and value.
+     */
     public static Filter isEqualTo(String key, Object value) {
         return new IsEqualTo(key, value);
     }
 
+    /**
+     * Constructs an {@link IsLessThanOrEqualTo} filter for the specified metadata key and maximum value threshold.
+     */
     @SuppressWarnings("unchecked")
     public static Filter isLessThanOrEqualTo(String key, Comparable<?> value) {
         return new IsLessThanOrEqualTo(key, (Comparable) value);
     }
 
+    /**
+     * Constructs an {@link IsIn} filter for the specified metadata key and target collection of permitted values.
+     */
     public static Filter isIn(String key, Collection<?> values) {
         return new IsIn(key, values);
     }
 
+    /**
+     * Combines two {@link Filter} instances into a logical {@link And} predicate AST.
+     */
     public static Filter and(Filter left, Filter right) {
         return new And(left, right);
     }

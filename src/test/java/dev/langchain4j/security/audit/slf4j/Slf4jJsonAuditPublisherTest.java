@@ -2,6 +2,8 @@ package dev.langchain4j.security.audit.slf4j;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import dev.langchain4j.security.audit.SecurityAuditEvent;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,7 +39,7 @@ class Slf4jJsonAuditPublisherTest {
     @DisplayName("Should serialize SecurityAuditEvent to standard single-line JSON with all OCSF/ECS fields")
     void testSerializationFields() throws Exception {
         Slf4jJsonAuditPublisher publisher = new Slf4jJsonAuditPublisher();
-        ObjectMapper mapper = publisher.getObjectMapper();
+        ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule()).disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 
         UUID eventId = UUID.randomUUID();
         SecurityAuditEvent event = SecurityAuditEvent.builder()
