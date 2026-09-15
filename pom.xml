@@ -4,13 +4,20 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>dev.langchain4j.security</groupId>
-    <artifactId>langchain4j-security-core</artifactId>
+    <groupId>dev.langchain4j.security-extension</groupId>
+    <artifactId>langchain4j-security-extension-core</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>LangChain4j Security Core</name>
     <description>Enterprise Zero-Dependency Policy Enforcement Layer for LangChain4j 1.19.0</description>
+
+    <scm>
+        <connection>scm:git:git@github.com:prashantdev/langchain4j-security-extension.git</connection>
+        <developerConnection>scm:git:git@github.com:prashantdev/langchain4j-security-extension.git</developerConnection>
+        <url>https://github.com/prashantdev/langchain4j-security-extension</url>
+        <tag>HEAD</tag>
+    </scm>
 
     <properties>
         <maven.compiler.release>17</maven.compiler.release>
@@ -101,6 +108,7 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.5</version>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
@@ -113,6 +121,20 @@
                         </goals>
                     </execution>
                 </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-release-plugin</artifactId>
+                <version>3.3.1</version> <!-- Use the latest stable version -->
+                <configuration>
+                    <!-- Prevents Maven from running tests twice during the release process -->
+                    <preparationGoals>clean verify</preparationGoals>
+                    <!-- Formats the Git tag name (e.g., v1.0.0 instead of project-name-1.0.0) -->
+                    <tagNameFormat>v@{project.version}</tagNameFormat>
+                    <!-- Auto-commits the updated pom.xml files -->
+                    <pushChanges>true</pushChanges>
+                </configuration>
             </plugin>
 
         </plugins>
