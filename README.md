@@ -1,6 +1,19 @@
 # langcharin4j-security-extension :
 A zero-trust extension for LangChain4j, acting as a Policy Enforcement Point (PEP). Protect enterprise AI workflows with deterministic tool execution boundaries, dynamic multi-tenant RAG pre-filtering, deterministic tool interception, fail-stop hard aborts and OCSF audit logging.
 
+<figure>
+  <img width="600" alt="image" src="https://github.com/user-attachments/assets/71430192-d44c-4b72-aa92-b2fd8519f304" />
+  <br/>
+  <figcaption align="center"><i>Figure 1: a langchain4j setup with standard security.</i></figcaption>
+</figure>
+<br/>
+<figure>
+  <img width="600" alt="image" src="https://github.com/user-attachments/assets/1b707fc4-c817-4f3e-9d91-d86b0f2fa658" />
+  <br/>
+  <figcaption align="center"><i>Figure 2: langchain4j-security-extension adds a Policy Enforcement Point to provide fine grained security.</i></figcaption>
+</figure>
+
+
 ## Enterprise Use Cases addressed by `langchain4j-security-extension`:
 
 `langchain4j-security-extension` functions as a decoupled Policy Enforcement Point (PEP) for LangChain4j applications. 
