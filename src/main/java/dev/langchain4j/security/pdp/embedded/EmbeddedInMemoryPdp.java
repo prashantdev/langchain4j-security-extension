@@ -10,6 +10,7 @@ import java.util.*;
 
 /**
  * Embedded in-memory Policy Decision Point executing strict deny-overrides logic.
+ * For more complex Policy decisions, implement the PolicyDecisionEngine interface and roll your own PolicyDecisionPoint.
  */
 public class EmbeddedInMemoryPdp implements PolicyDecisionEngine {
 
@@ -17,27 +18,57 @@ public class EmbeddedInMemoryPdp implements PolicyDecisionEngine {
     private final ClearanceLattice clearanceLattice;
     private final List<PolicyRule> rules = new ArrayList<>();
 
+    /**
+     * Constructs an EmbeddedInMemoryPdp with default RoleGraph and ClearanceLattice instances.
+     */
     public EmbeddedInMemoryPdp() {
         this(new RoleGraph(), new ClearanceLattice());
     }
 
+    /**
+     * Constructs an EmbeddedInMemoryPdp with custom RoleGraph and ClearanceLattice instances.
+     *
+     * @param roleGraph custom RoleGraph instance
+     * @param clearanceLattice custom ClearanceLattice instance
+     */
     public EmbeddedInMemoryPdp(RoleGraph roleGraph, ClearanceLattice clearanceLattice) {
         this.roleGraph = Objects.requireNonNull(roleGraph, "roleGraph must not be null");
         this.clearanceLattice = Objects.requireNonNull(clearanceLattice, "clearanceLattice must not be null");
     }
 
+    /**
+     * Adds a security policy rule to the engine.
+     *
+     * @param rule policy rule to register
+     */
     public synchronized void addRule(PolicyRule rule) {
         rules.add(Objects.requireNonNull(rule, "rule must not be null"));
     }
 
+    /**
+     * Returns the underlying RoleGraph.
+     *
+     * @return the RoleGraph instance
+     */
     public RoleGraph getRoleGraph() {
         return roleGraph;
     }
 
+    /**
+     * Returns the underlying ClearanceLattice.
+     *
+     * @return the ClearanceLattice instance
+     */
     public ClearanceLattice getClearanceLattice() {
         return clearanceLattice;
     }
 
+    /**
+     * Evaluates a security policy request against registered rules and context constraints.
+     *
+     * @param request policy evaluation request containing subject, action, resource, and context
+     * @return PolicyDecision outcome (PERMIT, DENY, or NOT_APPLICABLE)
+     */
     @Override
     public synchronized PolicyDecision evaluate(PolicyEvaluationRequest request) {
         // Fail-closed on null request or missing subject

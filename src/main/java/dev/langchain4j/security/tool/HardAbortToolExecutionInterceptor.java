@@ -27,6 +27,14 @@ public class HardAbortToolExecutionInterceptor implements InvocationHandler {
     private final SecurityAuditPublisher auditPublisher;
     private final Supplier<SecurityIdentity> identitySupplier;
 
+    /**
+     * Constructs a HardAbortToolExecutionInterceptor.
+     *
+     * @param targetTool target tool object instance
+     * @param pdp PolicyDecisionEngine instance
+     * @param auditPublisher SecurityAuditPublisher instance
+     * @param identitySupplier Supplier returning current caller SecurityIdentity
+     */
     public HardAbortToolExecutionInterceptor(
         Object targetTool,
         PolicyDecisionEngine pdp,
@@ -47,6 +55,15 @@ public class HardAbortToolExecutionInterceptor implements InvocationHandler {
         };
     }
 
+    /**
+     * Wraps a target tool instance in a security proxy interceptor.
+     *
+     * @param targetTool target tool object
+     * @param pdp PolicyDecisionEngine instance
+     * @param auditPublisher SecurityAuditPublisher instance
+     * @param identitySupplier Supplier returning caller SecurityIdentity
+     * @return proxied secure tool object
+     */
     public static Object wrap(
         Object targetTool,
         PolicyDecisionEngine pdp,
@@ -92,6 +109,13 @@ public class HardAbortToolExecutionInterceptor implements InvocationHandler {
         return targetTool;
     }
 
+    /**
+     * Pre-execution hook verifying security annotations and PDP evaluation before invoking tool.
+     *
+     * @param method tool method to execute
+     * @param args invocation arguments array
+     * @param identity caller security identity
+     */
     public void beforeToolExecution(Method method, Object[] args, SecurityIdentity identity) {
         SecuredTool securedTool = resolveSecuredToolAnnotation(method);
         if (securedTool == null) {

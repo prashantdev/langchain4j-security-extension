@@ -43,12 +43,19 @@ public class SecureContentRetriever implements ContentRetriever {
         };
     }
 
+    /**
+     * Creates a new Builder instance for constructing a SecureContentRetriever.
+     *
+     * @return a new Builder instance
+     */
     public static Builder builder() {
         return new Builder();
     }
 
     /**
      * Constructs a dynamic filter provider for wiring into {@code EmbeddingStoreContentRetriever.builder().dynamicFilter(...)}.
+     *
+     * @return a function mapping a Query to a Security Filter
      */
     public static Function<Query, Filter> dynamicFilterProvider() {
         return query -> {
@@ -60,6 +67,9 @@ public class SecureContentRetriever implements ContentRetriever {
 
     /**
      * Builds the native LangChain4j {@link Filter} AST for the given {@link Query}.
+     *
+     * @param query the query containing metadata or security context
+     * @return the constructed security Filter
      */
     public Filter buildAstFilter(Query query) {
         SecurityIdentity identity = resolveIdentity(query);
@@ -69,7 +79,9 @@ public class SecureContentRetriever implements ContentRetriever {
     /**
      * Executes retrieval using the underlying delegate content retriever, applying dynamic security pre-filtering
      * and post-retrieval chunk authorization pruning.
-     * Note: Refer to underlying method in langchain4j library for details on what it does.
+     *
+     * @param query the RAG query to retrieve relevant content for
+     * @return list of authorized Content items, filtered against caller identity constraints
      */
     @Override
     public List<Content> retrieve(Query query) {
@@ -201,26 +213,52 @@ public class SecureContentRetriever implements ContentRetriever {
         auditPublisher.publish(event);
     }
 
+    /**
+     * Builder for constructing instances of {@link SecureContentRetriever}.
+     */
     public static class Builder {
         private ContentRetriever delegate;
         private SecurityAuditPublisher auditPublisher;
         private Supplier<SecurityIdentity> identitySupplier;
 
+        /**
+         * Sets the delegate ContentRetriever instance.
+         *
+         * @param delegate the underlying ContentRetriever
+         * @return this Builder instance
+         */
         public Builder contentRetriever(ContentRetriever delegate) {
             this.delegate = delegate;
             return this;
         }
 
+        /**
+         * Sets the SecurityAuditPublisher instance for audit log publication.
+         *
+         * @param auditPublisher the audit publisher
+         * @return this Builder instance
+         */
         public Builder securityAuditPublisher(SecurityAuditPublisher auditPublisher) {
             this.auditPublisher = auditPublisher;
             return this;
         }
 
+        /**
+         * Sets an explicit Supplier for resolving caller SecurityIdentity instances.
+         *
+         * @param identitySupplier supplier returning the current caller identity
+         * @return this Builder instance
+         */
         public Builder identitySupplier(Supplier<SecurityIdentity> identitySupplier) {
             this.identitySupplier = identitySupplier;
             return this;
         }
 
+        /**
+         * Builds a new {@link SecureContentRetriever} instance.
+         *
+         * @return a new SecureContentRetriever
+         */
         public SecureContentRetriever build() {
             return new SecureContentRetriever(this);
         }

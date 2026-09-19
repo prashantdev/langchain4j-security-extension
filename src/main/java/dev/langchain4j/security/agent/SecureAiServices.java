@@ -42,25 +42,56 @@ public class SecureAiServices<T> {
         this.underlyingBuilder = AiServices.builder(aiServiceClass);
     }
 
+    /**
+     * Creates a new SecureAiServices builder instance for the specified AI service interface.
+     *
+     * @param <T> the type of the AI service interface
+     * @param aiServiceClass the class of the AI service interface
+     * @return a new SecureAiServices builder instance
+     */
     public static <T> SecureAiServices<T> builder(Class<T> aiServiceClass) {
         return new SecureAiServices<>(aiServiceClass);
     }
 
+    /**
+     * Configures the PolicyDecisionEngine to evaluate security access requests.
+     *
+     * @param pdp the policy decision engine instance
+     * @return this builder instance
+     */
     public SecureAiServices<T> policyDecisionEngine(PolicyDecisionEngine pdp) {
         this.pdp = pdp;
         return this;
     }
 
+    /**
+     * Configures the SecurityAuditPublisher for emitting audit events.
+     *
+     * @param auditPublisher the audit publisher instance
+     * @return this builder instance
+     */
     public SecureAiServices<T> securityAuditPublisher(SecurityAuditPublisher auditPublisher) {
         this.auditPublisher = auditPublisher;
         return this;
     }
 
+    /**
+     * Configures the default SecurityIdentity bound to this service instance.
+     *
+     * @param securityIdentity the security identity to bind
+     * @return this builder instance
+     */
     public SecureAiServices<T> securityIdentity(SecurityIdentity securityIdentity) {
         this.securityIdentity = securityIdentity;
         return this;
     }
 
+    /**
+     * Configures an IdentityBridge to map outer application contexts into SecurityIdentity instances.
+     *
+     * @param identityBridge the identity bridge instance
+     * @return this builder instance
+     */
     public SecureAiServices<T> identityBridge(IdentityBridge identityBridge) {
         this.identityBridge = identityBridge;
         return this;
@@ -68,7 +99,9 @@ public class SecureAiServices<T> {
 
     /**
      * Delegates chat model configuration to the underlying LangChain4j {@link AiServices} builder.
-     * Note: Refer to underlying method in langchain4j library for details on what it does.
+     *
+     * @param chatModel the chat model instance
+     * @return this builder instance
      */
     public SecureAiServices<T> chatModel(ChatModel chatModel) {
         underlyingBuilder.chatModel(chatModel);
@@ -77,7 +110,9 @@ public class SecureAiServices<T> {
 
     /**
      * Alias for {@link #chatModel(ChatModel)}. Delegates to the underlying LangChain4j {@link AiServices} builder.
-     * Note: Refer to underlying method in langchain4j library for details on what it does.
+     *
+     * @param chatModel the chat model instance
+     * @return this builder instance
      */
     public SecureAiServices<T> chatLanguageModel(ChatModel chatModel) {
         return chatModel(chatModel);
@@ -85,7 +120,9 @@ public class SecureAiServices<T> {
 
     /**
      * Delegates streaming chat model configuration to the underlying LangChain4j {@link AiServices} builder.
-     * Note: Refer to underlying method in langchain4j library for details on what it does.
+     *
+     * @param streamingChatModel the streaming chat model instance
+     * @return this builder instance
      */
     public SecureAiServices<T> streamingChatModel(StreamingChatModel streamingChatModel) {
         underlyingBuilder.streamingChatModel(streamingChatModel);
@@ -94,7 +131,9 @@ public class SecureAiServices<T> {
 
     /**
      * Alias for {@link #streamingChatModel(StreamingChatModel)}. Delegates to the underlying LangChain4j {@link AiServices} builder.
-     * Note: Refer to underlying method in langchain4j library for details on what it does.
+     *
+     * @param streamingChatModel the streaming chat model instance
+     * @return this builder instance
      */
     public SecureAiServices<T> streamingChatLanguageModel(StreamingChatModel streamingChatModel) {
         return streamingChatModel(streamingChatModel);
@@ -102,7 +141,9 @@ public class SecureAiServices<T> {
 
     /**
      * Delegates chat memory configuration to the underlying LangChain4j {@link AiServices} builder.
-     * Note: Refer to underlying method in langchain4j library for details on what it does.
+     *
+     * @param chatMemory the chat memory instance
+     * @return this builder instance
      */
     public SecureAiServices<T> chatMemory(ChatMemory chatMemory) {
         underlyingBuilder.chatMemory(chatMemory);
@@ -111,7 +152,9 @@ public class SecureAiServices<T> {
 
     /**
      * Delegates chat memory provider configuration to the underlying LangChain4j {@link AiServices} builder.
-     * Note: Refer to underlying method in langchain4j library for details on what it does.
+     *
+     * @param chatMemoryProvider the chat memory provider instance
+     * @return this builder instance
      */
     public SecureAiServices<T> chatMemoryProvider(ChatMemoryProvider chatMemoryProvider) {
         underlyingBuilder.chatMemoryProvider(chatMemoryProvider);
@@ -120,7 +163,9 @@ public class SecureAiServices<T> {
 
     /**
      * Delegates content retriever configuration to the underlying LangChain4j {@link AiServices} builder.
-     * Note: Refer to underlying method in langchain4j library for details on what it does.
+     *
+     * @param contentRetriever the content retriever instance
+     * @return this builder instance
      */
     public SecureAiServices<T> contentRetriever(ContentRetriever contentRetriever) {
         underlyingBuilder.contentRetriever(contentRetriever);
@@ -129,7 +174,9 @@ public class SecureAiServices<T> {
 
     /**
      * Delegates moderation model configuration to the underlying LangChain4j {@link AiServices} builder.
-     * Note: Refer to underlying method in langchain4j library for details on what it does.
+     *
+     * @param moderationModel the moderation model instance
+     * @return this builder instance
      */
     public SecureAiServices<T> moderationModel(ModerationModel moderationModel) {
         underlyingBuilder.moderationModel(moderationModel);
@@ -138,7 +185,9 @@ public class SecureAiServices<T> {
 
     /**
      * Delegates system message provider configuration to the underlying LangChain4j {@link AiServices} builder.
-     * Note: Refer to underlying method in langchain4j library for details on what it does.
+     *
+     * @param systemMessageProvider the system message provider function
+     * @return this builder instance
      */
     public SecureAiServices<T> systemMessageProvider(Function<Object, String> systemMessageProvider) {
         underlyingBuilder.systemMessageProvider(systemMessageProvider);
@@ -146,8 +195,10 @@ public class SecureAiServices<T> {
     }
 
     /**
-     * Registers tool instances to be intercepted and secured by {@link HardAbortToolExecutionInterceptor} before being passed to the underlying LangChain4j {@link AiServices} builder.
-     * Note: Refer to underlying method in langchain4j library for details on what it does.
+     * Registers tool instances to be intercepted and secured by {@link HardAbortToolExecutionInterceptor}.
+     *
+     * @param tools array of tool instances to secure
+     * @return this builder instance
      */
     public SecureAiServices<T> tools(Object... tools) {
         if (tools != null) {
@@ -157,8 +208,10 @@ public class SecureAiServices<T> {
     }
 
     /**
-     * Registers a list of tool instances to be intercepted and secured by {@link HardAbortToolExecutionInterceptor} before being passed to the underlying LangChain4j {@link AiServices} builder.
-     * Note: Refer to underlying method in langchain4j library for details on what it does.
+     * Registers a list of tool instances to be intercepted and secured by {@link HardAbortToolExecutionInterceptor}.
+     *
+     * @param tools list of tool instances to secure
+     * @return this builder instance
      */
     public SecureAiServices<T> tools(List<Object> tools) {
         if (tools != null) {
@@ -169,7 +222,9 @@ public class SecureAiServices<T> {
 
     /**
      * Delegates tool provider configuration to the underlying LangChain4j {@link AiServices} builder.
-     * Note: Refer to underlying method in langchain4j library for details on what it does.
+     *
+     * @param toolProvider the tool provider instance
+     * @return this builder instance
      */
     public SecureAiServices<T> toolProvider(ToolProvider toolProvider) {
         underlyingBuilder.toolProvider(toolProvider);
@@ -178,7 +233,9 @@ public class SecureAiServices<T> {
 
     /**
      * Allows custom configuration directly on the underlying LangChain4j {@link AiServices} builder instance.
-     * Note: Refer to underlying method in langchain4j library for details on what it does.
+     *
+     * @param customizer consumer to customize the underlying builder
+     * @return this builder instance
      */
     public SecureAiServices<T> withUnderlyingBuilder(Consumer<AiServices<T>> customizer) {
         if (customizer != null) {
@@ -187,6 +244,11 @@ public class SecureAiServices<T> {
         return this;
     }
 
+    /**
+     * Builds and returns the secured AI service proxy instance.
+     *
+     * @return a secured dynamic proxy implementing the AI service interface
+     */
     @SuppressWarnings("unchecked")
     public T build() {
         Objects.requireNonNull(pdp, ERROR_PDP_REQUIRED);

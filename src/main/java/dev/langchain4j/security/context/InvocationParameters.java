@@ -12,6 +12,7 @@ import java.util.Optional;
  */
 public final class InvocationParameters implements Serializable {
 
+    /** Map storing parameter key-value pairs. */
     private final Map<String, Object> parameters;
 
     private InvocationParameters(Map<String, Object> parameters) {
@@ -28,14 +29,31 @@ public final class InvocationParameters implements Serializable {
         }
     }
 
+    /**
+     * Returns an empty InvocationParameters instance.
+     *
+     * @return empty InvocationParameters
+     */
     public static InvocationParameters empty() {
         return new InvocationParameters(Map.of());
     }
 
+    /**
+     * Constructs an InvocationParameters instance from a key-value map.
+     *
+     * @param map map of context parameters
+     * @return new InvocationParameters
+     */
     public static InvocationParameters from(Map<String, Object> map) {
         return new InvocationParameters(map);
     }
 
+    /**
+     * Checks if a parameter key is present.
+     *
+     * @param key parameter key
+     * @return true if key exists, false otherwise
+     */
     public boolean containsKey(String key) {
         if (key == null) {
             return false;
@@ -43,6 +61,12 @@ public final class InvocationParameters implements Serializable {
         return parameters.containsKey(key);
     }
 
+    /**
+     * Gets a parameter value by key.
+     *
+     * @param key parameter key
+     * @return Optional containing parameter object if present
+     */
     public Optional<Object> get(String key) {
         if (key == null) {
             return Optional.empty();
@@ -50,6 +74,14 @@ public final class InvocationParameters implements Serializable {
         return Optional.ofNullable(parameters.get(key));
     }
 
+    /**
+     * Gets a typed parameter value by key.
+     *
+     * @param <T> value type
+     * @param key parameter key
+     * @param type target class type
+     * @return Optional containing cast parameter object if present and matching type
+     */
     public <T> Optional<T> get(String key, Class<T> type) {
         if (key == null || type == null) {
             return Optional.empty();
@@ -61,6 +93,11 @@ public final class InvocationParameters implements Serializable {
         return Optional.empty();
     }
 
+    /**
+     * Returns an unmodifiable map of parameter key-value pairs.
+     *
+     * @return unmodifiable parameters map
+     */
     public Map<String, Object> asMap() {
         return parameters;
     }

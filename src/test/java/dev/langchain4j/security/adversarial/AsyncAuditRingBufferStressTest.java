@@ -73,15 +73,15 @@ class AsyncAuditRingBufferStressTest {
         assertThat(completed).as("Producers completed within timeout without deadlock").isTrue();
         assertThat(elapsedMs).as("Non-blocking publish must finish rapidly under saturation").isLessThan(5000);
 
+        ringBuffer.close();
+        executor.shutdown();
+
         // Verify buffer saturation and drops were counted
         long droppedCount = ringBuffer.getDroppedEventsCount();
         assertThat(droppedCount).isGreaterThanOrEqualTo(0L);
 
-        ringBuffer.close();
-        executor.shutdown();
-
         long delivered = downstreamDelivered.get();
-        // Conservation check: delivered + dropped must account for total events produced (minus any still queued if closed)
+        // Conservation check: delivered + dropped must account for total events produced
         assertThat(delivered + droppedCount).isGreaterThanOrEqualTo(totalEvents - bufferCapacity);
     }
 
@@ -94,7 +94,7 @@ class AsyncAuditRingBufferStressTest {
 
         SecurityAuditPublisher downstream = event -> {
             try {
-                holdDownstream.await(500, TimeUnit.MILLISECONDS);
+                holdDownstream.await(5, TimeUnit.SECONDS);
             } catch (InterruptedException ignored) {}
             deliveredIds.add(event.targetResource());
         };

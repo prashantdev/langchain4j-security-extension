@@ -10,8 +10,31 @@ import java.lang.annotation.*;
 @Inherited
 @Documented
 public @interface SecuredAgent {
+    /**
+     * Set of required roles for invoking this agent or method.
+     *
+     * @return array of required roles
+     */
     String[] requiredRoles() default {};
+
+    /**
+     * Minimum security clearance level required.
+     *
+     * @return minimum clearance rank
+     */
     int minClearance() default 0;
+
+    /**
+     * Required tenant ID for multi-tenant isolation.
+     *
+     * @return required tenant ID, or empty string if open to any tenant
+     */
     String requiredTenant() default "";
+
+    /**
+     * Description of the secured agent constraint.
+     *
+     * @return constraint description
+     */
     String description() default "";
 }

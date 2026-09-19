@@ -18,6 +18,12 @@ public final class SecurityFilterAstBuilder {
 
     private SecurityFilterAstBuilder() {}
 
+    /**
+     * Translates caller SecurityIdentity into a native LangChain4j Filter AST tree.
+     *
+     * @param identity caller SecurityIdentity
+     * @return constructed security Filter
+     */
     public static Filter buildFilter(SecurityIdentity identity) {
         // Fail-closed default for unauthenticated/anonymous caller: Sentinel Deny-All Filter
         if (identity == null || identity.subjectId().equalsIgnoreCase(SecurityIdentity.ANONYMOUS_SUBJECT)) {
@@ -47,6 +53,13 @@ public final class SecurityFilterAstBuilder {
         return composite;
     }
 
+    /**
+     * Combines an existing user filter with a security filter via a logical AND operation.
+     *
+     * @param existingFilter user-supplied Filter, or null
+     * @param securityFilter security Filter, or null
+     * @return combined Filter AST
+     */
     public static Filter combineWithExisting(Filter existingFilter, Filter securityFilter) {
         if (existingFilter == null) {
             return securityFilter;
@@ -59,6 +72,10 @@ public final class SecurityFilterAstBuilder {
 
     /**
      * Constructs an {@link IsEqualTo} filter for the specified metadata key and value.
+     *
+     * @param key metadata field name
+     * @param value comparison target value
+     * @return IsEqualTo filter
      */
     public static Filter isEqualTo(String key, Object value) {
         return new IsEqualTo(key, value);
@@ -66,6 +83,10 @@ public final class SecurityFilterAstBuilder {
 
     /**
      * Constructs an {@link IsLessThanOrEqualTo} filter for the specified metadata key and maximum value threshold.
+     *
+     * @param key metadata field name
+     * @param value maximum comparison value
+     * @return IsLessThanOrEqualTo filter
      */
     @SuppressWarnings("unchecked")
     public static Filter isLessThanOrEqualTo(String key, Comparable<?> value) {
@@ -74,6 +95,10 @@ public final class SecurityFilterAstBuilder {
 
     /**
      * Constructs an {@link IsIn} filter for the specified metadata key and target collection of permitted values.
+     *
+     * @param key metadata field name
+     * @param values collection of permitted values
+     * @return IsIn filter
      */
     public static Filter isIn(String key, Collection<?> values) {
         return new IsIn(key, values);
@@ -81,6 +106,10 @@ public final class SecurityFilterAstBuilder {
 
     /**
      * Combines two {@link Filter} instances into a logical {@link And} predicate AST.
+     *
+     * @param left left operand filter
+     * @param right right operand filter
+     * @return And logical filter
      */
     public static Filter and(Filter left, Filter right) {
         return new And(left, right);

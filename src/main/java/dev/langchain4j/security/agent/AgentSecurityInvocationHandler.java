@@ -27,6 +27,15 @@ public class AgentSecurityInvocationHandler implements InvocationHandler {
     private final SecurityAuditPublisher auditPublisher;
     private final SecurityIdentity boundIdentity;
 
+    /**
+     * Constructs an AgentSecurityInvocationHandler.
+     *
+     * @param target the target object to proxy
+     * @param interfaceClass the AI service interface class
+     * @param pdp the policy decision engine to evaluate access requests
+     * @param auditPublisher the publisher for security audit events
+     * @param boundIdentity the security identity explicitly bound to this invocation handler, or null
+     */
     public AgentSecurityInvocationHandler(
         Object target,
         Class<?> interfaceClass,

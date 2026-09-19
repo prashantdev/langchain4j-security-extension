@@ -16,11 +16,22 @@ import java.util.Set;
  */
 public final class SecurityInvocationParameters {
 
+    /** Security context parameter key for full SecurityIdentity object. */
     public static final String KEY_IDENTITY = "sec:identity";
+
+    /** Security context parameter key for tenant ID string. */
     public static final String KEY_TENANT_ID = "sec:tenant_id";
+
+    /** Security context parameter key for subject ID string. */
     public static final String KEY_SUBJECT_ID = "sec:subject_id";
+
+    /** Security context parameter key for roles collection. */
     public static final String KEY_ROLES = "sec:roles";
+
+    /** Security context parameter key for clearance floor rank integer. */
     public static final String KEY_CLEARANCE_FLOOR = "sec:clearance_floor";
+
+    /** Security context parameter key for department ID string. */
     public static final String KEY_DEPARTMENT_ID = "sec:department_id";
 
     private SecurityInvocationParameters() {
@@ -98,6 +109,9 @@ public final class SecurityInvocationParameters {
 
     /**
      * Extracts a {@link SecurityIdentity} from native LangChain4j {@link dev.langchain4j.invocation.InvocationParameters}.
+     *
+     * @param parameters native LangChain4j invocation parameters
+     * @return an {@link Optional} containing the extracted identity, or empty if unresolved
      */
     public static Optional<SecurityIdentity> extractIdentity(dev.langchain4j.invocation.InvocationParameters parameters) {
         if (parameters == null) {
@@ -141,6 +155,9 @@ public final class SecurityInvocationParameters {
 
     /**
      * Resolves the caller's tenantId from invocation parameters.
+     *
+     * @param parameters invocation parameters
+     * @return Optional tenant ID string
      */
     public static Optional<String> getTenantId(InvocationParameters parameters) {
         if (parameters == null) {
@@ -153,6 +170,9 @@ public final class SecurityInvocationParameters {
 
     /**
      * Resolves the caller's tenantId from a context map.
+     *
+     * @param map context map
+     * @return Optional tenant ID string
      */
     public static Optional<String> getTenantId(Map<String, Object> map) {
         return getTenantId(InvocationParameters.from(map));
@@ -160,6 +180,9 @@ public final class SecurityInvocationParameters {
 
     /**
      * Resolves the caller's subjectId from invocation parameters.
+     *
+     * @param parameters invocation parameters
+     * @return Optional subject ID string
      */
     public static Optional<String> getSubjectId(InvocationParameters parameters) {
         if (parameters == null) {
@@ -172,6 +195,9 @@ public final class SecurityInvocationParameters {
 
     /**
      * Resolves the caller's subjectId from a context map.
+     *
+     * @param map context map
+     * @return Optional subject ID string
      */
     public static Optional<String> getSubjectId(Map<String, Object> map) {
         return getSubjectId(InvocationParameters.from(map));
@@ -179,6 +205,9 @@ public final class SecurityInvocationParameters {
 
     /**
      * Resolves the caller's roles from invocation parameters.
+     *
+     * @param parameters invocation parameters
+     * @return Optional set of role names
      */
     public static Optional<Set<String>> getRoles(InvocationParameters parameters) {
         if (parameters == null) {
@@ -203,6 +232,9 @@ public final class SecurityInvocationParameters {
 
     /**
      * Resolves the caller's roles from a context map.
+     *
+     * @param map context map
+     * @return Optional set of role names
      */
     public static Optional<Set<String>> getRoles(Map<String, Object> map) {
         return getRoles(InvocationParameters.from(map));
@@ -210,6 +242,9 @@ public final class SecurityInvocationParameters {
 
     /**
      * Resolves the caller's clearance floor from invocation parameters.
+     *
+     * @param parameters invocation parameters
+     * @return Optional clearance floor integer
      */
     public static Optional<Integer> getClearanceFloor(InvocationParameters parameters) {
         if (parameters == null) {
@@ -228,6 +263,9 @@ public final class SecurityInvocationParameters {
 
     /**
      * Resolves the caller's clearance floor from a context map.
+     *
+     * @param map context map
+     * @return Optional clearance floor integer
      */
     public static Optional<Integer> getClearanceFloor(Map<String, Object> map) {
         return getClearanceFloor(InvocationParameters.from(map));
@@ -235,6 +273,9 @@ public final class SecurityInvocationParameters {
 
     /**
      * Resolves the caller's departmentId from invocation parameters.
+     *
+     * @param parameters invocation parameters
+     * @return Optional department ID string
      */
     public static Optional<String> getDepartmentId(InvocationParameters parameters) {
         if (parameters == null) {
@@ -247,6 +288,9 @@ public final class SecurityInvocationParameters {
 
     /**
      * Resolves the caller's departmentId from a context map.
+     *
+     * @param map context map
+     * @return Optional department ID string
      */
     public static Optional<String> getDepartmentId(Map<String, Object> map) {
         return getDepartmentId(InvocationParameters.from(map));

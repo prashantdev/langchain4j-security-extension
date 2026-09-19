@@ -10,6 +10,12 @@ public class RoleGraph {
     // Parent role -> Children roles inherited
     private final Map<String, Set<String>> adjacency = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
+    /**
+     * Adds a directed inheritance edge where parentRole inherits all permissions of childRole.
+     *
+     * @param parentRole the parent role name
+     * @param childRole the child role name inherited by parent
+     */
     public synchronized void addInheritance(String parentRole, String childRole) {
         Objects.requireNonNull(parentRole, "parentRole must not be null");
         Objects.requireNonNull(childRole, "childRole must not be null");
@@ -29,6 +35,12 @@ public class RoleGraph {
         adjacency.computeIfAbsent(parent, k -> new TreeSet<>(String.CASE_INSENSITIVE_ORDER)).add(child);
     }
 
+    /**
+     * Transitively expands a set of assigned roles based on registered role inheritance edges.
+     *
+     * @param assignedRoles set of directly assigned role names
+     * @return unmodifiable set containing directly assigned and transitively inherited roles
+     */
     public synchronized Set<String> expandRoles(Set<String> assignedRoles) {
         if (assignedRoles == null || assignedRoles.isEmpty()) {
             return Collections.emptySet();
@@ -58,6 +70,13 @@ public class RoleGraph {
         return Collections.unmodifiableSet(expanded);
     }
 
+    /**
+     * Checks if a set of assigned roles includes a required role, either directly or via inheritance.
+     *
+     * @param assignedRoles set of assigned roles
+     * @param requiredRole required role name to test
+     * @return true if assignedRoles contains or inherits requiredRole, false otherwise
+     */
     public boolean hasRole(Set<String> assignedRoles, String requiredRole) {
         if (assignedRoles == null || requiredRole == null) {
             return false;

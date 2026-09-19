@@ -26,10 +26,21 @@ public class AsyncAuditRingBuffer implements SecurityAuditPublisher {
     private final AtomicLong droppedEvents = new AtomicLong(0);
     private volatile boolean running = true;
 
+    /**
+     * Constructs an AsyncAuditRingBuffer with the default capacity.
+     *
+     * @param downstreamPublisher downstream audit publisher to dispatch events to
+     */
     public AsyncAuditRingBuffer(SecurityAuditPublisher downstreamPublisher) {
         this(downstreamPublisher, DEFAULT_CAPACITY);
     }
 
+    /**
+     * Constructs an AsyncAuditRingBuffer with a specified buffer capacity.
+     *
+     * @param downstreamPublisher downstream audit publisher to dispatch events to
+     * @param capacity maximum number of audit events allowed in the buffer
+     */
     public AsyncAuditRingBuffer(SecurityAuditPublisher downstreamPublisher, int capacity) {
         this.downstreamPublisher = Objects.requireNonNull(downstreamPublisher, "downstreamPublisher must not be null");
         int cap = capacity <= 0 ? DEFAULT_CAPACITY : capacity;
@@ -76,6 +87,11 @@ public class AsyncAuditRingBuffer implements SecurityAuditPublisher {
         }
     }
 
+    /**
+     * Returns the total count of dropped audit events due to buffer saturation.
+     *
+     * @return total count of dropped audit events
+     */
     public long getDroppedEventsCount() {
         return droppedEvents.get();
     }

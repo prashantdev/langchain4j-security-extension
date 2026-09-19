@@ -14,10 +14,14 @@ import org.slf4j.LoggerFactory;
  */
 public class Slf4jJsonAuditPublisher implements SecurityAuditPublisher {
 
+    /** Logger name used for audit event emission. */
     public static final String LOGGER_NAME = "audit.security.langchain4j";
     private static final Logger log = LoggerFactory.getLogger(LOGGER_NAME);
     private final ObjectMapper mapper;
 
+    /**
+     * Constructs a new Slf4jJsonAuditPublisher initializing Jackson ObjectMapper with JSR-310 support.
+     */
     public Slf4jJsonAuditPublisher() {
         this.mapper = new ObjectMapper();
         this.mapper.registerModule(new JavaTimeModule());
