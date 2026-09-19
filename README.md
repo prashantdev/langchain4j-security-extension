@@ -1,4 +1,6 @@
 # langcharin4j-security-extension :
+[![License: Apache2]]
+
 A zero-trust extension for LangChain4j, acting as a Policy Enforcement Point (PEP). Protect enterprise AI workflows with deterministic tool execution boundaries, dynamic multi-tenant RAG pre-filtering, deterministic tool interception, fail-stop hard aborts and OCSF audit logging.
 
 <figure>
@@ -28,7 +30,6 @@ A zero-trust extension for LangChain4j, acting as a Policy Enforcement Point (PE
 
 ### 2. Tool Execution Protection & Function-Calling Authorization
 * **Unauthorized Tool Interception:** Prevents LLMs from triggering sensitive Java tool functions (`@SecuredTool`) without verified caller entitlements.
-* **Fine-Grained Parameter Constraints (ABAC via CEL):** Evaluates tool argument payloads against caller identity attributes at runtime using Common Expression Language (e.g., verifying `args.serverName` belongs to `subject.department`).
 * **Dual-Mode Violation Handling:**
   * **Hard Abort (Mutative Tools):** Halts tool dispatch immediately via `ToolExecutionDeniedException` to block illegal state changes (e.g., preventing unauthorized database updates or server reboots).
   * **Model Feedback (Informational Tools):** Suppresses tool execution while returning prompt-safe refusal payloads (`ACCESS_DENIED`) back to the model context, allowing the LLM to explain operational limitations to the user.
@@ -72,5 +73,16 @@ A zero-trust extension for LangChain4j, acting as a Policy Enforcement Point (PE
   * **Tenant Boundary Violations & Identity Spoofing**
   * **Role Elevation / Privilege Escalation**
   * **Policy Brute-Force Scanning**
-* **In-Flight Data Sanitization:** Automatically redacts API keys, secrets, private keys, Bearer tokens, and `@Masked` parameter fields from audit records.
 * **Enterprise SIEM Exporters:** Streams security events directly to enterprise monitoring solutions via Splunk HEC, Elastic Common Schema (ECS), and OpenTelemetry LogRecord exporters.
+
+## 🚀 See it in Action: Enterprise IT Incident Assistant
+
+Evaluating an empty security library creates adoption friction. To demonstrate how this architecture functions in a production environment, we built a comprehensive dual-agent showcase.
+
+The [langchain4j-enterprise-incident-assistant](https://github.com/prashantdev/langchain4j-enterprise-incident-assistant) repository features:
+* A vulnerable standard **Ollama + Gemini** IT operations application.
+* A complete **25-minute zero-trust upgrade guide**.
+* The transition from standard HTTP security to deterministic tool execution boundaries, dynamic multi-tenant RAG pre-filtering, and OCSF audit logging.
+* Tests demonstrating vulnerable and secured branches
+
+👉 **[Explore the Showcase Repository & 25-Minute Upgrade Guide](https://github.com/prashantdev/langchain4j-enterprise-incident-assistant)**
