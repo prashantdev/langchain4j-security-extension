@@ -4,7 +4,7 @@
 
     <groupId>io.github.prashantdev</groupId>
     <artifactId>langchain4j-security-extension</artifactId>
-    <version>1.0.0-BETA1</version>
+    <version>1.0.0-SNAPSHOT</version>
     <name>langchain4j-security-extension</name>
     <packaging>jar</packaging>
     <description>Enterprise Zero-Dependency Policy Enforcement Layer for LangChain4j 1.19.0</description>
@@ -29,7 +29,7 @@
         <connection>scm:git:git@github.com:prashantdev/langchain4j-security-extension.git</connection>
         <developerConnection>scm:git:git@github.com:prashantdev/langchain4j-security-extension.git</developerConnection>
         <url>https://github.com/prashantdev/langchain4j-security-extension</url>
-        <tag>v1.0.0-BETA1</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <properties>
