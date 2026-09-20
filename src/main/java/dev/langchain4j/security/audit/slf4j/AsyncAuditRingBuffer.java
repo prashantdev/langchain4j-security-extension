@@ -57,16 +57,12 @@ public class AsyncAuditRingBuffer implements SecurityAuditPublisher {
         }
 
         // Non-blocking offer: if full, drop oldest and retry offer
-        if (!queue.offer(event)) {
-            queue.poll(); // Evict oldest
-            if (!queue.offer(event)) {
-                // In case another thread filled it
-                queue.poll();
-                queue.offer(event);
-            }
-            long drops = droppedEvents.incrementAndGet();
-            if (drops % 1000 == 1) {
-                log.warn("[AsyncAuditRingBuffer] Buffer saturated. Total dropped events: {}", drops);
+        while (!queue.offer(event)) {
+            if (queue.poll() != null) {
+                long drops = droppedEvents.incrementAndGet();
+                if (drops % 1000 == 1) {
+                    log.warn("[AsyncAuditRingBuffer] Buffer saturated. Total dropped events: {}", drops);
+                }
             }
         }
     }

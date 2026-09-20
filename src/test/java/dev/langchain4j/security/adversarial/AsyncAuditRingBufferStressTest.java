@@ -73,6 +73,7 @@ class AsyncAuditRingBufferStressTest {
         assertThat(completed).as("Producers completed within timeout without deadlock").isTrue();
         assertThat(elapsedMs).as("Non-blocking publish must finish rapidly under saturation").isLessThan(5000);
 
+        ringBuffer.flush();
         ringBuffer.close();
         executor.shutdown();
 
